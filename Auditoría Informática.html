@@ -1,0 +1,718 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Auditoría Informática</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@500&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* Layout: one full-viewport slide at a time over an animated circuit canvas.
+   Content slides split into text + circular illustration frame; presenter badge pinned bottom-left, navigation bottom-right.
+   Deliberately single-theme (dark petrol), so every color is set explicitly. */
+:root {
+  --bg: #06141a;
+  --surface: rgba(12, 37, 48, 0.74);
+  --line: #1f4a59;
+  --accent: #2fd6c6;
+  --accent-dim: rgba(47, 214, 198, 0.38);
+  --violet: #8d72f2;
+  --fg: #e8f4f6;
+  --muted: #93b3bb;
+  --font-display: "Chakra Petch", "Segoe UI", sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 1.55;
+  overflow: hidden;
+}
+#bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+#deck { position: relative; z-index: 1; height: 100%; }
+
+.slide {
+  position: absolute; inset: 0; display: flex;
+  overflow-x: hidden; overflow-y: auto;
+  opacity: 0; visibility: hidden;
+  transition: opacity .45s ease, visibility 0s linear .45s;
+}
+.slide.active { opacity: 1; visibility: visible; transition: opacity .45s ease; }
+
+.inner {
+  position: relative; z-index: 1;
+  margin: auto; width: 100%; max-width: 1200px;
+  padding-block: 3rem 6.5rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* entrance */
+.slide.active .a { animation: rise .75s cubic-bezier(.2, .7, .2, 1) both; animation-delay: calc(var(--d, 0) * 90ms); }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* type */
+.title {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1.7rem, 4.2vw, 3.1rem); line-height: 1.08; letter-spacing: .015em;
+  text-transform: uppercase; margin: 0 0 1.7rem; text-wrap: balance;
+}
+.title::after {
+  content: ""; display: block; width: 64px; height: 3px; margin-top: .9rem;
+  background: var(--accent); border-radius: 2px; box-shadow: 0 0 14px var(--accent);
+}
+.lead { font-size: clamp(1.05rem, 1.55vw, 1.32rem); line-height: 1.65; margin: 0; max-width: 62ch; }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: clamp(1.1rem, 2.4vw, 1.9rem) clamp(1.2rem, 2.6vw, 2.2rem);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(47, 214, 198, .14);
+}
+
+.split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(1.5rem, 5vw, 4.5rem); align-items: center; }
+.split.rev { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); }
+.split.rev .frame, .split.rev .art { order: -1; }
+
+/* circular frames */
+.frame { position: relative; width: min(100%, 420px); aspect-ratio: 1; justify-self: center; max-width: 100%; }
+.frame .disc {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 8px rgba(47, 214, 198, .08), 0 0 60px rgba(47, 214, 198, .25);
+}
+.frame .disc svg { width: 100%; height: 100%; display: block; }
+.frame::after {
+  content: ""; position: absolute; inset: -18px; border-radius: 50%;
+  border: 1.5px dashed var(--accent-dim); animation: spin 70s linear infinite; pointer-events: none;
+}
+.frame.violet::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%;
+  border: 3px solid var(--violet); transform: translate(16px, 12px); box-shadow: 0 0 40px rgba(141, 114, 242, .3);
+}
+.art svg { width: 100%; max-width: 520px; display: block; margin-inline: auto; filter: drop-shadow(0 0 34px rgba(47, 214, 198, .28)); animation: float 7s ease-in-out infinite; }
+
+/* icons */
+.ico { width: 1.45rem; height: 1.45rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ico-box {
+  width: 2.7rem; height: 2.7rem; flex: none; border-radius: 10px; display: grid; place-items: center;
+  background: rgba(47, 214, 198, .1); color: var(--accent); border: 1px solid var(--accent-dim);
+}
+
+/* cover */
+.cover-main { max-width: min(58%, 720px); }
+.kicker {
+  display: inline-flex; align-items: center; gap: .65rem;
+  font-family: var(--font-mono); font-weight: 500; font-size: .85rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); border: 1px solid var(--accent-dim); border-radius: 999px; padding: .5rem 1.1rem;
+  background: rgba(47, 214, 198, .08);
+}
+.dot { width: .5rem; height: .5rem; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 2.4s ease-in-out infinite; }
+.cover-title {
+  font-family: var(--font-display); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(2.4rem, 7.4vw, 5.8rem); line-height: .98; letter-spacing: .01em; margin: 1.4rem 0 2.2rem;
+}
+.team-label { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .22em; text-transform: uppercase; color: var(--muted); margin: 0 0 .7rem; }
+.team { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0 1.6rem; list-style: none; padding: 0; margin: 0; }
+.team li { grid-column: span 2; display: flex; flex-direction: column; padding: .65rem 0; border-top: 1px solid var(--line); min-width: 0; }
+.team li:nth-child(n + 4) { grid-column: span 3; }
+.team .nm { font-weight: 600; font-size: 1.12rem; line-height: 1.3; }
+.team .mat { font-family: var(--font-mono); font-size: .85rem; color: var(--accent); }
+.cover-lap { position: absolute; z-index: 0; top: 0; bottom: 0; right: -6vw; width: min(46vw, 680px); display: grid; place-items: center; pointer-events: none; }
+.cover-lap svg { width: 100%; height: auto; filter: drop-shadow(0 0 44px rgba(47, 214, 198, .3)); animation: float 8s ease-in-out infinite; }
+
+/* chips (concepto) */
+.chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.chip {
+  display: flex; align-items: center; gap: .9rem; padding: 1rem 1.15rem; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--line); backdrop-filter: blur(8px);
+  font-family: var(--font-display); font-weight: 600; font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.25;
+}
+
+/* importancia */
+.points { display: grid; gap: 1rem; }
+.point { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.1rem; align-items: start; }
+.point .num { font-family: var(--font-mono); font-size: 1.5rem; line-height: 1.25; color: var(--accent); }
+.point p { margin: 0; font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.6; }
+
+/* tipos y preguntas */
+.types { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 1rem; margin-top: 2rem; }
+.types > * { grid-column: span 2; }
+.types > *:nth-child(4) { grid-column: 2 / span 2; }
+.types > *:nth-child(5) { grid-column: 4 / span 2; }
+.module {
+  display: flex; align-items: center; gap: 1rem; padding: 1.15rem 1.25rem; border-radius: 12px;
+  background: var(--surface); border: 1px solid var(--line); backdrop-filter: blur(8px);
+  font-family: var(--font-display); font-weight: 600; font-size: clamp(1rem, 1.45vw, 1.2rem); line-height: 1.25;
+}
+.qs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.q { align-items: center; }
+
+/* etapas */
+.steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; align-items: end; margin-top: 2.4rem; }
+.step {
+  min-height: calc(9rem + var(--i) * 3.4rem); padding: 1.15rem 1.25rem;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; border-radius: 12px;
+  background: linear-gradient(180deg, rgba(47, 214, 198, calc(.03 + var(--i) * .05)), var(--surface) 85%);
+  border: 1px solid var(--line); backdrop-filter: blur(8px);
+}
+.step .top { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+.step .n { font-family: var(--font-mono); font-size: 1.15rem; color: var(--accent); }
+.step h3 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: clamp(1.05rem, 1.6vw, 1.3rem); line-height: 1.2; }
+
+/* cierre */
+.thanks { min-height: 100%; display: grid; place-items: center; text-align: center; }
+.thanks h2 {
+  margin: 0; font-family: var(--font-display); font-weight: 700; text-transform: uppercase; text-wrap: balance;
+  font-size: clamp(2.3rem, 7vw, 5.6rem); line-height: 1.05; letter-spacing: .01em;
+}
+.thanks h2::after { content: ""; display: block; width: 96px; height: 4px; margin: 1.6rem auto 0; background: var(--accent); border-radius: 2px; box-shadow: 0 0 18px var(--accent); }
+
+/* engranajes decorativos */
+.gear { position: absolute; z-index: 0; width: clamp(96px, 15vw, 200px); height: auto; fill: rgba(47, 214, 198, .04); stroke: var(--accent); stroke-width: 1.1; opacity: .3; pointer-events: none; animation: spin 48s linear infinite; }
+.gear.rv { animation-direction: reverse; }
+.gear.tr { top: -2.8rem; right: -2.8rem; }
+.gear.tl { top: -2.8rem; left: -2.8rem; }
+.gear.bl { bottom: -3rem; left: -3rem; }
+.gear.br { bottom: -3rem; right: -3rem; }
+.gear.ct { inset: 0; margin: auto; width: min(80vh, 560px); opacity: .16; }
+
+/* presentador y navegación */
+.presenter {
+  position: fixed; z-index: 6;
+  left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: flex; align-items: center; gap: .75rem; max-width: calc(100% - 200px);
+  padding: .55rem 1.1rem .55rem .6rem; border-radius: 18px;
+  background: rgba(8, 28, 36, .9); border: 1px solid var(--accent-dim); backdrop-filter: blur(8px);
+}
+.presenter.pop { animation: rise .5s cubic-bezier(.2, .7, .2, 1) both; }
+.avatar {
+  width: 2.5rem; height: 2.5rem; border-radius: 50%; flex: none; display: grid; place-items: center;
+  font-family: var(--font-mono); font-size: .82rem; font-weight: 500; color: var(--bg); background: var(--accent);
+}
+.pt { display: block; min-width: 0; }
+.pl { display: block; font-family: var(--font-mono); font-size: .62rem; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); line-height: 1.3; }
+.pn { font-weight: 600; font-size: .98rem; line-height: 1.3; }
+.pm { font-family: var(--font-mono); font-size: .76rem; color: var(--accent); white-space: nowrap; }
+
+.nav {
+  position: fixed; z-index: 6;
+  right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: flex; align-items: center; gap: .45rem; padding: .4rem; border-radius: 999px;
+  background: rgba(8, 28, 36, .9); border: 1px solid var(--line); backdrop-filter: blur(8px);
+}
+.nav button {
+  width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--fg);
+  display: grid; place-items: center; cursor: pointer; padding: 0; transition: border-color .2s, color .2s;
+}
+.nav button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.nav button:disabled { opacity: .35; cursor: default; }
+.nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.nav .ico { width: 1.15rem; height: 1.15rem; }
+.count { font-family: var(--font-mono); font-size: .82rem; color: var(--muted); min-width: 4.4rem; text-align: center; font-variant-numeric: tabular-nums; }
+.scrim { position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; height: 6rem; background: linear-gradient(180deg, rgba(6, 20, 26, 0), var(--bg) 85%); pointer-events: none; }
+.progress { position: fixed; z-index: 7; left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0px); height: 3px; background: rgba(47, 214, 198, .12); }
+.progress i { display: block; height: 100%; width: 9%; background: var(--accent); box-shadow: 0 0 12px var(--accent); transition: width .5s ease; }
+
+/* responsive */
+@media (max-width: 860px) {
+  .split, .split.rev { grid-template-columns: minmax(0, 1fr); }
+  .split.rev .frame, .split.rev .art { order: 0; }
+  .frame { width: min(76%, 320px); margin-block: .5rem; }
+  .frame.violet { margin-right: 1.5rem; }
+  .cover-main { max-width: none; }
+  .cover-lap { display: none; }
+  .types { grid-template-columns: minmax(0, 1fr); }
+  .types > *, .types > *:nth-child(4), .types > *:nth-child(5) { grid-column: auto; }
+  .steps { grid-template-columns: minmax(0, 1fr); align-items: stretch; }
+  .step { min-height: 0; flex-direction: row; align-items: center; background: var(--surface); }
+  .step .top { flex-direction: row-reverse; justify-content: flex-end; gap: 1rem; }
+  .inner { padding-block: 2.4rem 6.5rem; }
+}
+@media (max-width: 560px) {
+  .chips, .qs { grid-template-columns: minmax(0, 1fr); }
+  .team { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .team li, .team li:nth-child(n + 4) { grid-column: span 1; }
+  .team li:last-child { grid-column: span 2; }
+  .nav .fs { display: none; }
+  .count { min-width: 3.6rem; font-size: .76rem; }
+  .avatar { display: none; }
+  .presenter { max-width: calc(100% - 160px); padding: .5rem .9rem; }
+  .pn { font-size: .88rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="frameBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f3a48"/><stop offset="1" stop-color="#07202a"/>
+    </linearGradient>
+    <symbol id="laptop" viewBox="0 0 300 190">
+      <rect x="40" y="6" width="220" height="136" rx="9" fill="#08202a" stroke="var(--accent)" stroke-width="2.5"/>
+      <rect x="50" y="16" width="200" height="116" rx="4" fill="#0b2d3a"/>
+      <path d="M64 34h70M64 48h46M78 62h84M78 76h38M64 90h60" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity=".85"/>
+      <g fill="var(--accent)" opacity=".55"><rect x="176" y="86" width="12" height="30"/><rect x="194" y="70" width="12" height="46"/><rect x="212" y="52" width="12" height="64"/></g>
+      <path d="M22 142h256l16 28a6 6 0 0 1-5 9H11a6 6 0 0 1-5-9z" fill="#0f3342" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M122 154h56" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+    </symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l5 5"/></symbol>
+    <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v6c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12v6c0 1.7 3.1 3 7 3s7-1.3 7-3v-6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></symbol>
+    <symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 20v-7M12 20V5M19 20v-10"/></symbol>
+    <symbol id="i-chip" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/></symbol>
+    <symbol id="i-net" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.2"/><circle cx="5" cy="19" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M12 7.2v4.3M12 11.5l-6 5.5M12 11.5l6 5.5"/></symbol>
+    <symbol id="i-backup" viewBox="0 0 24 24"><ellipse cx="11" cy="5.5" rx="7" ry="2.8"/><path d="M4 5.5v7c0 1.5 3.1 2.8 7 2.8M18 5.5v4"/><path d="M15.5 19l2.5-2.5 2.5 2.5M18 16.5v5"/></symbol>
+    <symbol id="i-rules" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 5 .5c0 1.7-2.5 2-2.5 3.5M12 17v.01"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.2l-5.5 3 1-6.2L3 9.6l6.2-.9z"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  </defs>
+</svg>
+
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<main id="deck">
+
+  <!-- 1 · Portada -->
+  <section class="slide active cover" aria-label="Portada" data-gear="br tl rv">
+    <div class="cover-lap" aria-hidden="true"><svg viewBox="0 0 300 190"><use href="#laptop" width="300" height="190"/></svg></div>
+    <div class="inner">
+      <div class="cover-main">
+        <span class="kicker a" style="--d:0"><i class="dot"></i>Presentación · 2026</span>
+        <h1 class="cover-title a" style="--d:1">Auditoría<br>Informática</h1>
+        <p class="team-label a" style="--d:2">Integrantes</p>
+        <ul class="team a" style="--d:3">
+          <li><span class="nm">Edward Jiménez</span><span class="mat">A00126021</span></li>
+          <li><span class="nm">Jorge Herrera</span><span class="mat">A00126622</span></li>
+          <li><span class="nm">Angel Adames</span><span class="mat">A005853</span></li>
+          <li><span class="nm">Andrés Aquino</span><span class="mat">A00126512</span></li>
+          <li><span class="nm">Angel Vásquez</span><span class="mat">A00126261</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · Introducción -->
+  <section class="slide" aria-label="Introducción" data-who="Edward Jiménez" data-mat="A00126021" data-gear="br tr rv">
+    <div class="inner">
+      <div class="split rev">
+        <div class="frame a" style="--d:2" aria-hidden="true"><div class="disc">
+          <svg viewBox="0 0 400 400">
+            <rect width="400" height="400" fill="url(#frameBg)"/>
+            <path d="M0 330h110l26 30h264M0 60h90l30 30h60M400 90h-80l-24-24h-60" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".22"/>
+            <ellipse cx="200" cy="318" rx="150" ry="22" fill="#000" opacity=".25"/>
+            <use href="#laptop" x="50" y="120" width="300" height="190"/>
+            <circle cx="300" cy="150" r="34" fill="rgba(47,214,198,.14)" stroke="var(--accent)" stroke-width="6"/>
+            <path d="M324 176l30 30" stroke="var(--accent)" stroke-width="9" stroke-linecap="round"/>
+            <path d="M286 150l10 10 18-20" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div></div>
+        <div>
+          <h2 class="title a" style="--d:0">Introducción</h2>
+          <div class="panel a" style="--d:1"><p class="lead">La auditoría informática es un proceso de evaluación y revisión de los sistemas informáticos, los equipos, las redes, los programas y la información de una empresa. Su objetivo es comprobar que los recursos tecnológicos funcionen correctamente, sean seguros y se utilicen de manera eficiente.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · Concepto -->
+  <section class="slide" aria-label="Concepto de la auditoría informática" data-who="Edward Jiménez" data-mat="A00126021" data-gear="bl tr rv">
+    <div class="inner">
+      <div class="split">
+        <div>
+          <h2 class="title a" style="--d:0">Concepto de la auditoría informática</h2>
+          <div class="chips">
+            <div class="chip a" style="--d:1"><span class="ico-box"><svg class="ico"><use href="#i-search"/></svg></span>Detectar errores y fallos</div>
+            <div class="chip a" style="--d:2"><span class="ico-box"><svg class="ico"><use href="#i-db"/></svg></span>Proteger los datos</div>
+            <div class="chip a" style="--d:3"><span class="ico-box"><svg class="ico"><use href="#i-shield"/></svg></span>Mejorar la seguridad</div>
+            <div class="chip a" style="--d:4"><span class="ico-box"><svg class="ico"><use href="#i-bars"/></svg></span>Optimizar los recursos</div>
+          </div>
+        </div>
+        <div class="frame a" style="--d:2" aria-hidden="true"><div class="disc">
+          <svg viewBox="0 0 400 400">
+            <rect width="400" height="400" fill="url(#frameBg)"/>
+            <rect x="50" y="64" width="300" height="272" rx="14" fill="#0b3340" stroke="var(--accent)" stroke-width="3"/>
+            <path d="M70 110h70v36h14M70 170h56M330 130h-70v18h-14M330 196h-50v-48M70 250h74v-40h10M330 262h-62v-44h-14M130 316v-44h22M270 316v-36h-20" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".55" stroke-linecap="round" stroke-linejoin="round"/>
+            <g fill="var(--accent)" opacity=".7"><circle cx="70" cy="110" r="4"/><circle cx="70" cy="170" r="4"/><circle cx="330" cy="130" r="4"/><circle cx="330" cy="196" r="4"/><circle cx="70" cy="250" r="4"/><circle cx="330" cy="262" r="4"/></g>
+            <g fill="#0a2a34" stroke="var(--violet)" stroke-width="2"><rect x="280" y="80" width="12" height="40" rx="2"/><rect x="300" y="80" width="12" height="40" rx="2"/><rect x="320" y="80" width="12" height="40" rx="2"/></g>
+            <circle cx="96" cy="92" r="12" fill="#0a2a34" stroke="var(--violet)" stroke-width="2.5"/>
+            <circle cx="190" cy="306" r="10" fill="#0a2a34" stroke="var(--accent)" stroke-width="2.5"/>
+            <circle cx="214" cy="306" r="10" fill="#0a2a34" stroke="var(--accent)" stroke-width="2.5"/>
+            <rect x="142" y="142" width="116" height="116" rx="5" fill="none" stroke="var(--accent)" stroke-width="7" stroke-dasharray="3 6.5" opacity=".75"/>
+            <rect x="154" y="154" width="92" height="92" rx="7" fill="#0f4f5c" stroke="var(--accent)" stroke-width="3"/>
+            <rect x="168" y="168" width="64" height="64" rx="4" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".6"/>
+            <text x="200" y="207" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" font-weight="500" fill="var(--accent)">CPU</text>
+          </svg>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · Importancia -->
+  <section class="slide" aria-label="Importancia de la auditoría informática" data-who="Edward Jiménez" data-mat="A00126021" data-gear="bl rv">
+    <div class="inner">
+      <div class="split">
+        <div>
+          <h2 class="title a" style="--d:0">Importancia de la auditoría informática</h2>
+          <div class="points">
+            <div class="panel point a" style="--d:1"><span class="num">01</span><p>La auditoría informática es importante porque actualmente las empresas dependen de la tecnología para realizar gran parte de sus actividades. Una falla informática o una pérdida de información puede ocasionar pérdidas económicas, retrasos en las operaciones y daños a la reputación de la organización.</p></div>
+            <div class="panel point a" style="--d:2"><span class="num">02</span><p>Por medio de las auditorías, las empresas pueden identificar riesgos, fortalecer sus sistemas de seguridad, reducir costos y tomar mejores decisiones sobre sus recursos tecnológicos.</p></div>
+          </div>
+        </div>
+        <div class="art a" style="--d:2" aria-hidden="true"><svg viewBox="0 0 300 190"><use href="#laptop" width="300" height="190"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 · Tipos -->
+  <section class="slide" aria-label="Tipos de auditorías informáticas" data-who="Jorge Herrera" data-mat="A00126622" data-gear="tr bl rv">
+    <div class="inner">
+      <h2 class="title a" style="--d:0">Tipos de auditorías informáticas</h2>
+      <div class="types">
+        <div class="module a" style="--d:1"><span class="ico-box"><svg class="ico"><use href="#i-shield"/></svg></span>Auditoría de Seguridad Informática</div>
+        <div class="module a" style="--d:2"><span class="ico-box"><svg class="ico"><use href="#i-chip"/></svg></span>Auditoría de Hardware y Software</div>
+        <div class="module a" style="--d:3"><span class="ico-box"><svg class="ico"><use href="#i-net"/></svg></span>Auditoría de Redes Informáticas</div>
+        <div class="module a" style="--d:4"><span class="ico-box"><svg class="ico"><use href="#i-backup"/></svg></span>Auditoría de Datos y Copias de Seguridad</div>
+        <div class="module a" style="--d:5"><span class="ico-box"><svg class="ico"><use href="#i-rules"/></svg></span>Auditoría de Normas y Procedimientos</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · Seguridad -->
+  <section class="slide" aria-label="Seguridad informática" data-who="Angel Adames" data-mat="A005853" data-gear="tr bl rv">
+    <div class="inner">
+      <div class="split">
+        <div>
+          <h2 class="title a" style="--d:0">Seguridad informática</h2>
+          <div class="qs">
+            <div class="module q a" style="--d:1"><span class="ico-box"><svg class="ico"><use href="#i-help"/></svg></span>¿Qué es la seguridad informática?</div>
+            <div class="module q a" style="--d:2"><span class="ico-box"><svg class="ico"><use href="#i-alert"/></svg></span>Principales amenazas informáticas</div>
+            <div class="module q a" style="--d:3"><span class="ico-box"><svg class="ico"><use href="#i-star"/></svg></span>¿Cuál es su importancia?</div>
+            <div class="module q a" style="--d:4"><span class="ico-box"><svg class="ico"><use href="#i-lock"/></svg></span>¿Cómo podemos protegernos?</div>
+          </div>
+        </div>
+        <div class="frame violet a" style="--d:2" aria-hidden="true"><div class="disc">
+          <svg viewBox="0 0 400 400">
+            <rect width="400" height="400" fill="url(#frameBg)"/>
+            <rect x="100" y="90" width="200" height="140" rx="10" fill="#0a2a35" stroke="var(--accent)" stroke-width="3"/>
+            <rect x="110" y="100" width="180" height="120" rx="4" fill="#0c3744"/>
+            <path d="M200 112l42 16v30c0 26-17 44-42 54-25-10-42-28-42-54v-30z" fill="rgba(47,214,198,.14)" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M182 160l14 14 26-30" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M200 230v32M160 264h80" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="72" cy="270" r="28" fill="#123e4c" stroke="var(--accent)" stroke-width="3"/>
+            <path d="M20 410c0-54 22-82 52-82s52 28 52 82z" fill="#123e4c" stroke="var(--accent)" stroke-width="3"/>
+            <circle cx="328" cy="270" r="28" fill="#2a2455" stroke="var(--violet)" stroke-width="3"/>
+            <path d="M276 410c0-54 22-82 52-82s52 28 52 82z" fill="#2a2455" stroke="var(--violet)" stroke-width="3"/>
+          </svg>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · Procesos -->
+  <section class="slide" aria-label="Procesos de una auditoría informática" data-who="Andrés Aquino" data-mat="A00126512" data-gear="bl tr rv">
+    <div class="inner">
+      <div class="split">
+        <div>
+          <h2 class="title a" style="--d:0">Procesos de una auditoría informática</h2>
+          <div class="panel a" style="--d:1"><p class="lead">El proceso de una auditoría informática consiste en una serie de pasos que permiten revisar los sistemas tecnológicos de una empresa para comprobar que funcionen correctamente, que la información esté protegida y que se cumplan las normas de seguridad establecidas.</p></div>
+        </div>
+        <div class="frame a" style="--d:2" aria-hidden="true"><div class="disc">
+          <svg viewBox="0 0 400 400">
+            <rect width="400" height="400" fill="url(#frameBg)"/>
+            <rect x="36" y="70" width="230" height="150" rx="10" fill="#0a2a35" stroke="var(--accent)" stroke-width="2.5"/>
+            <path d="M36 98h230" stroke="var(--accent)" stroke-width="2" opacity=".5"/>
+            <g fill="var(--accent)"><circle cx="52" cy="84" r="4"/><circle cx="66" cy="84" r="4" opacity=".6"/><circle cx="80" cy="84" r="4" opacity=".3"/></g>
+            <path d="M54 118h80M54 136h120M70 154h60M70 172h96M54 190h50" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" opacity=".8"/>
+            <rect x="146" y="170" width="220" height="162" rx="10" fill="#0c3744" stroke="var(--violet)" stroke-width="2.5"/>
+            <path d="M146 198h220" stroke="var(--violet)" stroke-width="2" opacity=".6"/>
+            <path d="M166 232h180M166 262h180M166 292h180" stroke="var(--accent)" stroke-width="1" opacity=".2"/>
+            <polyline points="166,304 204,272 240,284 284,240 322,254 350,222" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+            <g fill="var(--accent)"><circle cx="204" cy="272" r="5"/><circle cx="284" cy="240" r="5"/><circle cx="350" cy="222" r="6"/></g>
+          </svg>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · Etapas -->
+  <section class="slide" aria-label="Etapas principales" data-who="Andrés Aquino" data-mat="A00126512" data-gear="tr bl rv">
+    <div class="inner">
+      <h2 class="title a" style="--d:0">Etapas principales</h2>
+      <div class="steps">
+        <div class="step a" style="--i:0;--d:1"><div class="top"><span class="n">01</span><span class="ico-box"><svg class="ico"><use href="#i-rules"/></svg></span></div><h3>Planificación</h3></div>
+        <div class="step a" style="--i:1;--d:2"><div class="top"><span class="n">02</span><span class="ico-box"><svg class="ico"><use href="#i-db"/></svg></span></div><h3>Recopilación de información</h3></div>
+        <div class="step a" style="--i:2;--d:3"><div class="top"><span class="n">03</span><span class="ico-box"><svg class="ico"><use href="#i-chip"/></svg></span></div><h3>Evaluación de sistemas</h3></div>
+        <div class="step a" style="--i:3;--d:4"><div class="top"><span class="n">04</span><span class="ico-box"><svg class="ico"><use href="#i-alert"/></svg></span></div><h3>Identificación de riesgos</h3></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · Beneficios -->
+  <section class="slide" aria-label="Beneficios de una auditoría informática" data-who="Angel Vásquez" data-mat="A00126261" data-gear="br tr rv">
+    <div class="inner">
+      <div class="split rev">
+        <div class="frame a" style="--d:2" aria-hidden="true"><div class="disc">
+          <svg viewBox="0 0 400 400">
+            <rect width="400" height="400" fill="url(#frameBg)"/>
+            <rect x="168" y="76" width="204" height="196" rx="12" fill="#0a2a35" stroke="var(--accent)" stroke-width="3"/>
+            <path d="M270 96l36 14v26c0 22-15 38-36 46-21-8-36-24-36-46v-26z" fill="rgba(47,214,198,.14)" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/>
+            <path d="M254 138l12 12 22-26" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <g fill="var(--accent)"><rect x="190" y="204" width="120" height="8" rx="4" opacity=".8"/><rect x="190" y="224" width="84" height="8" rx="4" opacity=".55"/><rect x="190" y="244" width="150" height="8" rx="4" opacity=".35"/></g>
+            <circle cx="88" cy="172" r="30" fill="#123e4c" stroke="var(--accent)" stroke-width="3"/>
+            <path d="M22 410c0-62 28-104 66-104s66 42 66 104z" fill="#123e4c" stroke="var(--accent)" stroke-width="3"/>
+            <g transform="rotate(-14 132 313)"><rect x="100" y="270" width="64" height="86" rx="8" fill="#0c3744" stroke="var(--violet)" stroke-width="3"/><path d="M112 292h40M112 308h40M112 324h24" stroke="var(--violet)" stroke-width="3" stroke-linecap="round" opacity=".8"/></g>
+          </svg>
+        </div></div>
+        <div>
+          <h2 class="title a" style="--d:0">Beneficios de una auditoría informática</h2>
+          <div class="panel a" style="--d:1"><p class="lead">Una auditoría informática permite revisar y evaluar los sistemas, equipos, redes y procesos tecnológicos de una organización. Su principal beneficio es mejorar la seguridad de la información, ya que ayuda a detectar vulnerabilidades, errores y posibles amenazas. También permite proteger los datos contra pérdidas o accesos no autorizados, mejorar el rendimiento de los sistemas y reducir costos al identificar recursos innecesarios.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · Resultados -->
+  <section class="slide" aria-label="Resultados de una auditoría informática" data-who="Angel Vásquez" data-mat="A00126261" data-gear="bl tr rv">
+    <div class="inner">
+      <div class="split">
+        <div>
+          <h2 class="title a" style="--d:0">Resultados de una auditoría informática</h2>
+          <div class="panel a" style="--d:1"><p class="lead">Los resultados de una auditoría informática muestran el estado de los sistemas tecnológicos de una organización. Permiten identificar errores, riesgos, vulnerabilidades y problemas de seguridad, además de comprobar si los sistemas cumplen con las normas y procedimientos establecidos. También incluyen recomendaciones para corregir los problemas encontrados, mejorar el rendimiento y aumentar la seguridad y eficiencia de los recursos informáticos.</p></div>
+        </div>
+        <div class="frame a" style="--d:2" aria-hidden="true"><div class="disc">
+          <svg viewBox="0 0 400 400">
+            <rect width="400" height="400" fill="url(#frameBg)"/>
+            <path d="M40 282l30-40h260l30 40v60a10 10 0 0 1-10 10H50a10 10 0 0 1-10-10z" fill="#0a2a35" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/>
+            <g fill="none" stroke="var(--accent)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 22" opacity=".55"><path d="M78 264h244"/><path d="M66 290h268"/><path d="M62 316h276"/></g>
+            <rect x="130" y="332" width="140" height="9" rx="4.5" fill="var(--accent)" opacity=".45"/>
+            <rect x="130" y="70" width="140" height="46" rx="23" fill="rgba(47,214,198,.14)" stroke="var(--accent)" stroke-width="3"/>
+            <text x="200" y="101" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" font-weight="500" letter-spacing="4" fill="var(--accent)">AUDIT</text>
+            <circle cx="90" cy="170" r="24" fill="rgba(47,214,198,.12)" stroke="var(--accent)" stroke-width="5"/>
+            <path d="M107 188l22 22" stroke="var(--accent)" stroke-width="7" stroke-linecap="round"/>
+            <rect x="206" y="140" width="54" height="68" rx="8" fill="#0c3744" stroke="var(--violet)" stroke-width="3"/>
+            <path d="M216 160l5 5 9-10M216 182l5 5 9-10M238 160h14M238 182h14" fill="none" stroke="var(--violet)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <g fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M318 136v68M290 204h56M290 150h56"/><path d="M293 150l-13 28h26zM343 150l-13 28h26z"/></g>
+          </svg>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · Gracias -->
+  <section class="slide" aria-label="Agradecimiento" data-gear="ct">
+    <div class="inner thanks">
+      <h2 class="a" style="--d:0">Gracias por su atención</h2>
+    </div>
+  </section>
+
+</main>
+
+<div class="presenter" id="presenter" hidden aria-live="polite">
+  <span class="avatar" id="pAv"></span>
+  <span class="pt"><span class="pl">Expone</span><span class="pn" id="pName"></span> <span class="pm" id="pMat"></span></span>
+</div>
+<div class="scrim" aria-hidden="true"></div>
+<nav class="nav" aria-label="Navegación de la presentación">
+  <button type="button" id="prev" aria-label="Diapositiva anterior"><svg class="ico"><use href="#i-prev"/></svg></button>
+  <span class="count" id="count">01 / 11</span>
+  <button type="button" id="next" aria-label="Diapositiva siguiente"><svg class="ico"><use href="#i-next"/></svg></button>
+  <button type="button" id="full" class="fs" aria-label="Pantalla completa"><svg class="ico"><use href="#i-full"/></svg></button>
+</nav>
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+
+<script>
+(function () {
+  /* ---------- engranajes decorativos ---------- */
+  function gearPath() {
+    var n = 10, ro = 47, ri = 38, s = 2 * Math.PI / n, c = 50, d = '';
+    function P(r, a) { return (c + r * Math.cos(a)).toFixed(2) + ' ' + (c + r * Math.sin(a)).toFixed(2); }
+    for (var i = 0; i < n; i++) {
+      var a = i * s;
+      var q = [[ri, a + .05 * s], [ro, a + .2 * s], [ro, a + .5 * s], [ri, a + .65 * s]];
+      for (var j = 0; j < 4; j++) d += (i === 0 && j === 0 ? 'M' : 'L') + P(q[j][0], q[j][1]) + ' ';
+    }
+    return d + 'Z';
+  }
+  var GP = gearPath();
+  var NS = 'http://www.w3.org/2000/svg';
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  slides.forEach(function (sl) {
+    (sl.getAttribute('data-gear') || '').split(' ').filter(Boolean).forEach(function (pos) {
+      if (pos === 'rv') return;
+      var svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('class', 'gear ' + pos + (pos === 'bl' || pos === 'tl' ? ' rv' : ''));
+      svg.innerHTML = '<path d="' + GP + '"/><circle cx="50" cy="50" r="16"/><circle cx="50" cy="50" r="27" stroke-dasharray="2 4" opacity=".6"/>';
+      sl.appendChild(svg);
+    });
+  });
+
+  /* ---------- fondo animado: circuitos con pulsos ---------- */
+  var cv = document.getElementById('bg');
+  var cx = cv.getContext('2d');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W = 0, H = 0, paths = [], last = 0, CELL = 44;
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+  function ri(a, b) { return Math.floor(rnd(a, b + 1)); }
+  function build() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    paths = [];
+    var count = Math.min(46, Math.round(W * H / 42000) + 12);
+    for (var i = 0; i < count; i++) {
+      var x = Math.round(rnd(0, W) / CELL) * CELL, y = Math.round(rnd(0, H) / CELL) * CELL;
+      var ang = ri(0, 7), pts = [[x, y]], steps = ri(4, 9);
+      for (var s = 0; s < steps; s++) {
+        var len = CELL * ri(1, 3);
+        x += Math.round(Math.cos(ang * Math.PI / 4)) * len;
+        y += Math.round(Math.sin(ang * Math.PI / 4)) * len;
+        pts.push([x, y]);
+        ang += Math.random() < .25 ? 0 : (Math.random() < .5 ? -1 : 1);
+      }
+      var cum = [0], tot = 0;
+      for (var k = 1; k < pts.length; k++) {
+        tot += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]);
+        cum.push(tot);
+      }
+      paths.push({ pts: pts, cum: cum, len: tot, t: rnd(0, tot), speed: rnd(45, 115), tail: rnd(80, 150) });
+    }
+  }
+  function at(p, s) {
+    s = Math.max(0, Math.min(p.len, s));
+    for (var i = 1; i < p.cum.length; i++) {
+      if (s <= p.cum[i]) {
+        var f = (s - p.cum[i - 1]) / ((p.cum[i] - p.cum[i - 1]) || 1);
+        return [p.pts[i - 1][0] + (p.pts[i][0] - p.pts[i - 1][0]) * f, p.pts[i - 1][1] + (p.pts[i][1] - p.pts[i - 1][1]) * f];
+      }
+    }
+    return p.pts[p.pts.length - 1];
+  }
+  function orb(x, y, r, rgb, a) {
+    var g = cx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(' + rgb + ',' + a + ')');
+    g.addColorStop(1, 'rgba(' + rgb + ',0)');
+    cx.fillStyle = g; cx.fillRect(0, 0, W, H);
+  }
+  function draw(t) {
+    var dt = Math.min(.05, (t - last) / 1000 || 0); last = t;
+    cx.fillStyle = '#06141a'; cx.fillRect(0, 0, W, H);
+    var m = Math.max(W, H);
+    orb(W * (.78 + .06 * Math.sin(t / 9000)), H * (.28 + .08 * Math.cos(t / 11000)), m * .55, '47,214,198', .11);
+    orb(W * (.15 + .05 * Math.cos(t / 13000)), H * (.85 + .05 * Math.sin(t / 10000)), m * .5, '141,114,242', .07);
+    cx.lineJoin = 'round'; cx.lineCap = 'round'; cx.lineWidth = 1;
+    var i, j, p, q;
+    for (i = 0; i < paths.length; i++) {
+      p = paths[i];
+      cx.strokeStyle = 'rgba(47,214,198,.10)';
+      cx.beginPath();
+      for (j = 0; j < p.pts.length; j++) { q = p.pts[j]; if (j) cx.lineTo(q[0], q[1]); else cx.moveTo(q[0], q[1]); }
+      cx.stroke();
+      cx.strokeStyle = 'rgba(47,214,198,.30)';
+      cx.beginPath();
+      var a = p.pts[0], b = p.pts[p.pts.length - 1];
+      cx.moveTo(a[0] + 3.5, a[1]); cx.arc(a[0], a[1], 3.5, 0, 6.2832);
+      cx.moveTo(b[0] + 3.5, b[1]); cx.arc(b[0], b[1], 3.5, 0, 6.2832);
+      cx.stroke();
+    }
+    if (reduce) return;
+    cx.lineWidth = 2;
+    for (i = 0; i < paths.length; i++) {
+      p = paths[i];
+      p.t += p.speed * dt;
+      if (p.t - p.tail > p.len) { p.t = 0; p.speed = rnd(45, 115); }
+      for (j = 0; j < 8; j++) {
+        var s0 = p.t - p.tail * j / 8, s1 = p.t - p.tail * (j + 1) / 8;
+        if (s0 < 0 || s0 > p.len + 1) continue;
+        var u = at(p, s0), v = at(p, s1);
+        cx.strokeStyle = 'rgba(47,214,198,' + ((1 - j / 8) * .85).toFixed(2) + ')';
+        cx.shadowColor = 'rgba(47,214,198,.9)';
+        cx.shadowBlur = j === 0 ? 12 : 0;
+        cx.beginPath(); cx.moveTo(u[0], u[1]); cx.lineTo(v[0], v[1]); cx.stroke();
+      }
+      cx.shadowBlur = 0;
+    }
+  }
+  function loop(t) { draw(t); requestAnimationFrame(loop); }
+  build();
+  if (reduce) { draw(0); } else { requestAnimationFrame(loop); }
+  var rt;
+  window.addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { build(); if (reduce) draw(0); }, 150);
+  });
+
+  /* ---------- navegación ---------- */
+  var cur = 0, lastIdx = slides.length - 1;
+  var badge = document.getElementById('presenter');
+  var pAv = document.getElementById('pAv'), pName = document.getElementById('pName'), pMat = document.getElementById('pMat');
+  var count = document.getElementById('count'), bar = document.getElementById('bar');
+  var prev = document.getElementById('prev'), next = document.getElementById('next'), full = document.getElementById('full');
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function show(n) {
+    n = Math.max(0, Math.min(lastIdx, n));
+    cur = n;
+    slides.forEach(function (s, i) {
+      s.classList.toggle('active', i === n);
+      s.setAttribute('aria-hidden', i === n ? 'false' : 'true');
+    });
+    var s = slides[n], who = s.getAttribute('data-who');
+    if (who) {
+      pName.textContent = who;
+      pMat.textContent = s.getAttribute('data-mat');
+      pAv.textContent = who.split(' ').slice(0, 2).map(function (w) { return w.charAt(0); }).join('');
+      badge.hidden = false;
+      badge.classList.remove('pop'); void badge.offsetWidth; badge.classList.add('pop');
+    } else {
+      badge.hidden = true;
+    }
+    count.textContent = pad(n + 1) + ' / ' + pad(slides.length);
+    bar.style.width = ((n + 1) / slides.length * 100) + '%';
+    prev.disabled = n === 0; next.disabled = n === lastIdx;
+    s.scrollTop = 0;
+  }
+  prev.addEventListener('click', function () { show(cur - 1); });
+  next.addEventListener('click', function () { show(cur + 1); });
+  full.addEventListener('click', function () {
+    try {
+      if (document.fullscreenElement) { document.exitFullscreen(); }
+      else { var p = document.documentElement.requestFullscreen(); if (p && p.catch) p.catch(function () {}); }
+    } catch (e) {}
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { e.preventDefault(); show(cur + 1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); show(cur - 1); }
+    else if (k === 'Home') { show(0); }
+    else if (k === 'End') { show(lastIdx); }
+  });
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) show(cur + (dx < 0 ? 1 : -1));
+  }, { passive: true });
+  show(0);
+})();
+</script>
+
+</body></html>
