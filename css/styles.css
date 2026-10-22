@@ -1,0 +1,642 @@
+/* ==========================================================================
+   Auditoría Informática — hoja de estilos
+   Contenido:
+     1. Variables de diseño (colores, tipografías)
+     2. Base y fondo animado
+     3. Estructura de las diapositivas y animaciones
+     4. Componentes reutilizables (títulos, tarjetas, marcos circulares, iconos)
+     5. Diapositivas específicas (portada, etapas, cierre)
+     6. Engranajes decorativos
+     7. Navegación, insignia del expositor y logo
+     8. Adaptación a pantallas (escritorio, tablet, móvil)
+   El diseño usa un solo tema oscuro a propósito, por eso todos los colores
+   se definen explícitamente.
+   ========================================================================== */
+
+/* 1. VARIABLES DE DISEÑO ------------------------------------------------- */
+:root {
+  --color-background: #06141a;
+  --color-surface: rgba(12, 37, 48, 0.88);
+  --color-border: #1f4a59;
+  --color-accent: #2fd6c6;
+  --color-accent-soft: rgba(47, 214, 198, 0.38);
+  --color-violet: #8d72f2;
+  --color-text: #e8f4f6;
+  --color-text-muted: #93b3bb;
+  --color-overlay: rgba(8, 28, 36, 0.92);
+
+  --font-display: "Chakra Petch", "Segoe UI", sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --content-max-width: 1240px;
+  --safe-left: max(16px, env(safe-area-inset-left, 0px));
+  --safe-right: max(16px, env(safe-area-inset-right, 0px));
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: dark;
+}
+
+/* 2. BASE Y FONDO ANIMADO ------------------------------------------------ */
+* { box-sizing: border-box; }
+
+html {
+  height: 100%;
+  /* Tamaño base fluido: crece en pantallas grandes y se reduce en móviles */
+  font-size: clamp(15px, 0.5vw + 11.5px, 20px);
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1.125rem;
+  line-height: 1.55;
+}
+
+/* Lienzo del fondo (dibujado por js/background.js) */
+.background-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+}
+
+.deck {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  -webkit-tap-highlight-color: transparent; /* sin destello al tocar los costados */
+}
+
+/* 3. DIAPOSITIVAS Y ANIMACIONES ------------------------------------------ */
+.slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow-x: hidden;
+  overflow-y: auto;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+}
+
+.slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease;
+}
+
+/* Contenedor central de cada diapositiva */
+.slide-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin: auto;
+  padding-block: 4.4rem 6.5rem;
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+/* Las animaciones solo corren en la diapositiva visible (ahorra CPU/GPU) */
+.slide:not(.is-active) *,
+.slide:not(.is-active) *::before,
+.slide:not(.is-active) *::after {
+  animation-play-state: paused !important;
+}
+
+/* Entrada escalonada: --reveal-order define el orden de aparición */
+.slide.is-active .reveal {
+  animation: reveal-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--reveal-order, 0) * 90ms);
+}
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+/* 4. COMPONENTES REUTILIZABLES ------------------------------------------- */
+.slide-title {
+  margin: 0 0 1.7rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.7rem, 4.2vw, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.slide-title::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 3px;
+  margin-top: 0.9rem;
+  border-radius: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 14px var(--color-accent);
+}
+
+.body-text {
+  margin: 0;
+  max-width: 62ch;
+  font-size: clamp(1.05rem, 1.55vw, 1.32rem);
+  line-height: 1.65;
+}
+
+/* Tarjeta con fondo translúcido (sin blur para mejor rendimiento) */
+.card {
+  padding: clamp(1.1rem, 2.4vw, 1.9rem) clamp(1.2rem, 2.6vw, 2.2rem);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(47, 214, 198, 0.14);
+}
+
+/* Distribución en dos columnas: texto + ilustración */
+.two-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: clamp(1.5rem, 5vw, 4.5rem);
+  align-items: center;
+}
+.two-columns.is-reversed { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+.two-columns.is-reversed > .photo-frame,
+.two-columns.is-reversed > .floating-art { order: -1; }
+
+/* Marco circular que contiene una ilustración */
+.photo-frame {
+  position: relative;
+  width: min(100%, 420px);
+  max-width: 100%;
+  aspect-ratio: 1;
+  justify-self: center;
+}
+.photo-disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 0 0 8px rgba(47, 214, 198, 0.08), 0 0 60px rgba(47, 214, 198, 0.25);
+}
+.photo-disc svg { display: block; width: 100%; height: 100%; }
+.photo-frame::after {
+  content: "";
+  position: absolute;
+  inset: -18px;
+  border: 1.5px dashed var(--color-accent-soft);
+  border-radius: 50%;
+  animation: spin 70s linear infinite;
+  pointer-events: none;
+}
+.photo-frame.has-violet-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--color-violet);
+  border-radius: 50%;
+  transform: translate(16px, 12px);
+  box-shadow: 0 0 40px rgba(141, 114, 242, 0.3);
+}
+
+/* Ilustración flotante sin marco (laptop) */
+.floating-art svg {
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  animation: float 7s ease-in-out infinite;
+}
+
+/* Iconos */
+.icon {
+  width: 1.45rem;
+  height: 1.45rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.7rem;
+  height: 2.7rem;
+  border: 1px solid var(--color-accent-soft);
+  border-radius: 10px;
+  background: rgba(47, 214, 198, 0.1);
+  color: var(--color-accent);
+}
+
+/* Cuadrícula de puntos clave (slide 3) y preguntas (slide 6) */
+.keypoints,
+.question-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+/* Tarjeta con icono y texto corto (slides 3, 5 y 6) */
+.keypoint,
+.topic-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.05rem 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  line-height: 1.25;
+}
+
+/* Puntos numerados (slide 4) */
+.numbered-points { display: grid; gap: 1rem; }
+.numbered-point {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1.1rem;
+  align-items: start;
+}
+.numbered-point .point-number {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  line-height: 1.25;
+  color: var(--color-accent);
+}
+.numbered-point p {
+  margin: 0;
+  font-size: clamp(1rem, 1.4vw, 1.2rem);
+  line-height: 1.6;
+}
+
+/* Tipos de auditoría (slide 5): 3 + 2 centradas */
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.topic-grid > * { grid-column: span 2; }
+.topic-grid > :nth-child(4) { grid-column: 2 / span 2; }
+.topic-grid > :nth-child(5) { grid-column: 4 / span 2; }
+
+/* 5. DIAPOSITIVAS ESPECÍFICAS -------------------------------------------- */
+
+/* Portada */
+.cover-headline { max-width: 58%; }
+.cover-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 1.1rem;
+  border: 1px solid var(--color-accent-soft);
+  border-radius: 999px;
+  background: rgba(47, 214, 198, 0.08);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.cover-kicker-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px var(--color-accent);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+.cover-logo { display: block; width: 4.2rem; height: 4.2rem; margin-bottom: 1.2rem; }
+.cover-title {
+  margin: 1.4rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 7.4vw, 6rem);
+  line-height: 0.98;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.cover-laptop {
+  position: absolute;
+  top: 3rem;
+  right: var(--safe-right);
+  width: min(38%, 460px);
+  pointer-events: none;
+}
+.cover-laptop svg { display: block; width: 100%; height: auto; animation: float 8s ease-in-out infinite; }
+
+/* Parte inferior de la portada: participantes a la izquierda, QR a la derecha */
+.cover-bottom {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(1.2rem, 3vw, 2.6rem);
+  margin-top: 2.4rem;
+}
+.team { flex: 1; min-width: 0; }
+
+/* Tarjeta con código QR (fondo blanco para que se pueda escanear) */
+.qr-card {
+  flex: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.7rem 0.7rem 0.6rem;
+  border: 1px solid var(--color-accent-soft);
+  border-radius: 14px;
+  background: var(--color-overlay);
+}
+.qr-image {
+  display: block;
+  width: 7.4rem;
+  height: 7.4rem;
+  border-radius: 6px;
+  image-rendering: pixelated;
+}
+.qr-caption {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  line-height: 1.35;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Lista de participantes: una sola fila, en orden */
+.team-heading {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.team-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.team-member {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--color-border);
+}
+.team-member-name { font-weight: 600; font-size: 1.08rem; line-height: 1.3; }
+.team-member-id { font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-accent); }
+
+/* Etapas principales (slide 8): cinco tarjetas del mismo tamaño */
+.stage-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2.4rem;
+}
+.stage-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.4rem;
+  min-height: 11.5rem;
+  padding: 1.15rem 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(47, 214, 198, 0.07), var(--color-surface) 85%);
+}
+.stage-card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.stage-card-number { font-family: var(--font-mono); font-size: 1.15rem; color: var(--color-accent); }
+.stage-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+  line-height: 1.2;
+}
+
+/* Cierre */
+.closing { display: grid; place-items: center; min-height: 100%; text-align: center; }
+.closing h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.3rem, 7vw, 5.8rem);
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.closing h2::after {
+  content: "";
+  display: block;
+  width: 96px;
+  height: 4px;
+  margin: 1.6rem auto 0;
+  border-radius: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 18px var(--color-accent);
+}
+
+/* 6. ENGRANAJES DECORATIVOS (insertados por js/gears.js) ------------------ */
+.gear {
+  position: absolute;
+  z-index: 0;
+  width: clamp(96px, 15vw, 200px);
+  height: auto;
+  fill: rgba(47, 214, 198, 0.04);
+  stroke: var(--color-accent);
+  stroke-width: 1.1;
+  opacity: 0.3;
+  pointer-events: none;
+  animation: spin 48s linear infinite;
+}
+.gear.is-counter-clockwise { animation-direction: reverse; }
+.gear--top-right { top: -2.8rem; right: -2.8rem; }
+.gear--bottom-left { bottom: -3rem; left: -3rem; }
+.gear--bottom-right { bottom: -3rem; right: -3rem; }
+.gear--center { inset: 0; margin: auto; width: min(80vh, 560px); opacity: 0.16; }
+
+/* 7. NAVEGACIÓN, EXPOSITOR Y LOGO ---------------------------------------- */
+.brand-logo {
+  position: fixed;
+  z-index: 6;
+  top: 12px;
+  left: var(--safe-left);
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+/* Insignia del expositor en la esquina inferior izquierda */
+.presenter-badge {
+  position: fixed;
+  z-index: 6;
+  left: var(--safe-left);
+  bottom: calc(var(--safe-bottom) + 16px);
+  max-width: calc(100% - 210px);
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--color-accent-soft);
+  border-radius: 14px;
+  background: var(--color-overlay);
+}
+.presenter-badge.is-entering { animation: reveal-up 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.presenter-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+.presenter-name { font-weight: 600; font-size: 1rem; line-height: 1.3; }
+.presenter-id { margin-left: 0.4rem; font-family: var(--font-mono); font-size: 0.78rem; color: var(--color-accent); white-space: nowrap; }
+
+/* Controles: anterior, contador, siguiente, pantalla completa */
+.deck-controls {
+  position: fixed;
+  z-index: 6;
+  right: var(--safe-right);
+  bottom: calc(var(--safe-bottom) + 16px);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-overlay);
+}
+.deck-controls button {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.deck-controls button:hover:not(:disabled) { border-color: var(--color-accent); color: var(--color-accent); }
+.deck-controls button:disabled { opacity: 0.35; cursor: default; }
+.deck-controls button:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+.deck-controls .icon { width: 1.15rem; height: 1.15rem; }
+.slide-counter {
+  min-width: 4.4rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.bottom-fade {
+  position: fixed;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6rem;
+  background: linear-gradient(180deg, rgba(6, 20, 26, 0), var(--color-background) 85%);
+  pointer-events: none;
+}
+.progress-track {
+  position: fixed;
+  z-index: 7;
+  left: 0;
+  right: 0;
+  bottom: var(--safe-bottom);
+  height: 3px;
+  background: rgba(47, 214, 198, 0.12);
+}
+.progress-fill {
+  display: block;
+  width: 9%;
+  height: 100%;
+  background: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent);
+  transition: width 0.5s ease;
+}
+
+/* 8. ADAPTACIÓN A PANTALLAS ---------------------------------------------- */
+
+/* Pantallas muy grandes: más espacio horizontal */
+@media (min-width: 1700px) {
+  :root { --content-max-width: 1440px; }
+}
+
+/* Tablet y móvil horizontal */
+@media (max-width: 1000px) {
+  .team-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .stage-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 860px) {
+  .two-columns,
+  .two-columns.is-reversed { grid-template-columns: minmax(0, 1fr); }
+  .two-columns.is-reversed > .photo-frame,
+  .two-columns.is-reversed > .floating-art { order: 0; }
+  .photo-frame { width: min(76%, 320px); margin-block: 0.5rem; }
+  .photo-frame.has-violet-ring { margin-right: 1.5rem; }
+  .cover-headline { max-width: none; }
+  .cover-laptop { display: none; }
+  .topic-grid { grid-template-columns: minmax(0, 1fr); }
+  .topic-grid > *,
+  .topic-grid > :nth-child(4),
+  .topic-grid > :nth-child(5) { grid-column: auto; }
+  .stage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stage-card { min-height: 9rem; }
+  .slide-content { padding-block: 4rem 6.5rem; }
+}
+
+/* Móvil vertical */
+@media (max-width: 560px) {
+  .keypoints,
+  .question-grid { grid-template-columns: minmax(0, 1fr); }
+  .team-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cover-bottom { flex-direction: column; align-items: stretch; }
+  .qr-card { flex-direction: row; align-self: flex-start; gap: 0.9rem; padding: 0.6rem 1rem 0.6rem 0.6rem; }
+  .qr-image { width: 5.6rem; height: 5.6rem; }
+  .qr-caption { text-align: left; }
+  .stage-grid { grid-template-columns: minmax(0, 1fr); }
+  .stage-card { flex-direction: row-reverse; align-items: center; min-height: 0; }
+  .stage-card-top { gap: 1rem; }
+  .deck-controls .fullscreen-button { display: none; }
+  .slide-counter { min-width: 3.6rem; font-size: 0.76rem; }
+  .presenter-badge { max-width: calc(100% - 170px); padding: 0.5rem 0.8rem; }
+  .presenter-name { font-size: 0.88rem; }
+  .presenter-id { display: block; margin-left: 0; }
+}
+
+/* Pantallas bajas (móvil horizontal): compacta el espaciado vertical */
+@media (max-height: 520px) {
+  .slide-content { padding-block: 3.6rem 5.5rem; }
+  .slide-title { margin-bottom: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
