@@ -178,7 +178,7 @@ body {
 /* Marco circular que contiene una ilustración */
 .photo-frame {
   position: relative;
-  width: min(100%, 420px);
+  width: min(100%, 21rem);
   max-width: 100%;
   aspect-ratio: 1;
   justify-self: center;
@@ -215,7 +215,7 @@ body {
 .floating-art svg {
   display: block;
   width: 100%;
-  max-width: 520px;
+  max-width: 26rem;
   margin-inline: auto;
   animation: float 7s ease-in-out infinite;
 }
@@ -338,7 +338,7 @@ body {
   position: absolute;
   top: 3rem;
   right: var(--safe-right);
-  width: min(38%, 460px);
+  width: min(38%, 23rem);
   pointer-events: none;
 }
 .cover-laptop svg { display: block; width: 100%; height: auto; animation: float 8s ease-in-out infinite; }
@@ -583,11 +583,6 @@ body {
 
 /* 8. ADAPTACIÓN A PANTALLAS ---------------------------------------------- */
 
-/* Pantallas muy grandes: más espacio horizontal */
-@media (min-width: 1700px) {
-  :root { --content-max-width: 1440px; }
-}
-
 /* Tablet y móvil horizontal */
 @media (max-width: 1000px) {
   .team-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -635,6 +630,15 @@ body {
 @media (max-height: 520px) {
   .slide-content { padding-block: 3.6rem 5.5rem; }
   .slide-title { margin-bottom: 1rem; }
+}
+
+/* Pantallas de computadora apaisadas (16:9, 16:10, ultra anchas), incluida la pantalla completa.
+   Todo el diseño escala en proporción al tamaño de la ventana, así cada diapositiva
+   cabe completa y no hace falta (ni se permite) desplazarse. */
+@media (min-width: 861px) and (min-height: 480px) and (min-aspect-ratio: 8/5) {
+  html { font-size: min(1.04vw, 1.85vh); }
+  :root { --content-max-width: 72rem; }
+  .slide { overflow: hidden; }
 }
 
 @media (prefers-reduced-motion: reduce) {
