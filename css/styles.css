@@ -367,19 +367,19 @@ body {
 }
 .qr-image {
   display: block;
-  width: 7.4rem;
-  height: 7.4rem;
+  width: clamp(8.5rem, 13vw, 12rem);
+  height: clamp(8.5rem, 13vw, 12rem);
   border-radius: 6px;
   image-rendering: pixelated;
 }
 .qr-caption {
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  line-height: 1.35;
+  font-size: 0.78rem;
+  line-height: 1.4;
   letter-spacing: 0.08em;
   text-align: center;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-text);
 }
 
 /* Lista de participantes: una sola fila, en orden */
@@ -619,8 +619,8 @@ body {
   .team-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cover-bottom { flex-direction: column; align-items: stretch; }
   .qr-card { flex-direction: row; align-self: flex-start; gap: 0.9rem; padding: 0.6rem 1rem 0.6rem 0.6rem; }
-  .qr-image { width: 5.6rem; height: 5.6rem; }
-  .qr-caption { text-align: left; }
+  .qr-image { width: 7.5rem; height: 7.5rem; }
+  .qr-caption { text-align: left; font-size: 0.74rem; }
   .stage-grid { grid-template-columns: minmax(0, 1fr); }
   .stage-card { flex-direction: row-reverse; align-items: center; min-height: 0; }
   .stage-card-top { gap: 1rem; }
